@@ -107,14 +107,60 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function(options, limit = 10) {
+  const value = [];
+  const queryString = `
+  SELECT properties.*, avg(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON property_reviews.property_id = properties.id
+  `;
+
+  if (options.city) {
+    value.push(`%${options.city}%`)
+    queryString += ` WHERE properties.city LIKE $${value.length}`;
+  }
+
+  if (options.owner_id && value.length === 0){
+    value.push(options.owner_id);
+    queryString += ` WHERE properties.owner_id = $${value.length}`;
+  } else if (options.owner_id && value.length != 0) {
+    value.push(options.owner_id);
+    queryString += ` AND properties.owner_id = $${value.length}`;
+  }
+
+  if (options.minimum_price_per_night && value.length === 0) {
+    value.push(options.minimum_price_per_night * 100);
+    queryString += ` WHERE properties.cost_per_night > $${value.length}`;
+  } else if (options.minimum_price_per_night && value.length != 0) {
+    value.push(options.minimum_price_per_night * 100);
+    queryString += ` AND properties.cost_per_night > $${value.length}`;
+  }
+
+  if (options.maximum_price_per_night && value.length === 0) {
+    value.push(options.maximum_price_per_night * 100);
+    queryString += ` WHERE properties.cost+per_night < $${value.length}`;
+  } else if (options.maximum_price_per_night && value.length != 0) {
+    value.push(options.maximum_price_per_night * 100);
+    queryString += ` AND properties.cost+per_night < $${value.length}`;
+  }
+
+  if (options.minimum_rating && value.length === 0) {
+    value.push(options.minimum_rating);
+    queryString += ` HAVING average_rating > $${value.length}`;
+  } else if (options.minimum_rating && value.length != 0) {
+    value.push(options.minimum_rating);
+    queryString += ` AND average_rating > $${value.length}`;
+  }
+
+  value.push(limit);
+  queryString += `
+  GROUP BY properties.id
+  ORDER BY cost_per_night
+  LIMIT $${value.length};
+  `;
+
   return pool
-    .query(
-      /* write your query here */
-      `SELECT * FROM properties
-      LIMIT $1`,
-      [limit])
+    .query(queryString, value)
     .then((result) => {
-      console.log(result.rows);
       return result.rows;
     })
     .catch((err) => {
