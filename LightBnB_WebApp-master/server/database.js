@@ -112,44 +112,32 @@ const getAllProperties = function(options, limit = 10) {
   SELECT properties.*, avg(property_reviews.rating) as average_rating
   FROM properties
   JOIN property_reviews ON property_reviews.property_id = properties.id
-  `;
+  WHERE TRUE `;
 
   if (options.city) {
     value.push(`%${options.city}%`)
-    queryString += ` WHERE properties.city LIKE $${value.length}`;
+    queryString += ` AND properties.city LIKE $${value.length}`;
   }
 
   if (options.owner_id && value.length === 0){
     value.push(options.owner_id);
-    queryString += ` WHERE properties.owner_id = $${value.length}`;
-  } else if (options.owner_id && value.length != 0) {
-    value.push(options.owner_id);
     queryString += ` AND properties.owner_id = $${value.length}`;
-  }
+  } 
 
   if (options.minimum_price_per_night && value.length === 0) {
     value.push(options.minimum_price_per_night * 100);
-    queryString += ` WHERE properties.cost_per_night > $${value.length}`;
-  } else if (options.minimum_price_per_night && value.length != 0) {
-    value.push(options.minimum_price_per_night * 100);
     queryString += ` AND properties.cost_per_night > $${value.length}`;
-  }
+  } 
 
   if (options.maximum_price_per_night && value.length === 0) {
     value.push(options.maximum_price_per_night * 100);
-    queryString += ` WHERE properties.cost+per_night < $${value.length}`;
-  } else if (options.maximum_price_per_night && value.length != 0) {
-    value.push(options.maximum_price_per_night * 100);
     queryString += ` AND properties.cost+per_night < $${value.length}`;
-  }
+  } 
 
   if (options.minimum_rating && value.length === 0) {
     value.push(options.minimum_rating);
-    queryString += ` HAVING average_rating > $${value.length}`;
-  } else if (options.minimum_rating && value.length != 0) {
-    value.push(options.minimum_rating);
-    queryString += ` AND average_rating > $${value.length}`;
-  }
+    queryString += ` HAVING avg(property_reviews.rating) > $${value.length}`;
+  } 
 
   value.push(limit);
   queryString += `
