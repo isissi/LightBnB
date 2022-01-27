@@ -41,3 +41,27 @@
   * `apiRoutes.js` and `userRoutes.js` are responsible for any HTTP requests to `/users/something` or `/api/something`. 
   * `json` is a directory that contains a bunch of dummy data in `.json` files.
   * `database.js` is responsible for all queries to the database. It doesn't currently connect to any database, all it does is return data from `.json` files.
+
+
+## Dependencies
+  * bcrypt: ^3.0.6
+  * body-parser: ^1.19.0
+  * cookie-session: ^1.3.3
+  * express: ^4.17.1
+  * nodemon: ^1.19.1
+  * pg: ^8.7.1"
+ 
+## Getting Started
+1. Create a new repository using this repository as a template.
+2. Clone your repository onto your local device.
+3. Install dependencies using the npm install command.
+4. Start the web server using the npm run local command. The app will be served at http://localhost:3000/.
+5. Go to http://localhost:3000/ in your browser.
+
+## How LightBNB works
+1. Search property list by clicking "Search" in the navigation bar. 
+2. Log in as a existing user or sign up for a new account. 
+3. After logged in, you are able to 
+  * Check all the properties registered under your account in "My Listings".
+  * Check all your reservations in "My Reservations". 
+  * Creat a new property in "Creating List". 
